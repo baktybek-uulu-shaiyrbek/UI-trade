@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Interface</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .trading-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .account-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .price-up {
+            color: #4caf50;
+        }
+        
+        .price-down {
+            color: #f44336;
+        }
+        
+        .price-arrow {
+            font-size: 20px;
+            display: inline-block;
+        }
+        
+        .balance {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        .nav-tabs .nav-link {
+            background-color: #e3f2fd;
+            color: #000;
+            border: none;
+            padding: 10px 30px;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group-text {
+            background-color: #64b5f6;
+            color: white;
+            border: none;
+            width: 80px;
+            justify-content: center;
+        }
+        
+        .form-control {
+            border: 1px solid #64b5f6;
+        }
+        
+        .btn-long {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        
+        .btn-short {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-weight: bold;
+        }
+        
+        .order-table {
+            background-color: #64b5f6;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .order-table th {
+            background-color: #42a5f5;
+            border: none;
+            padding: 10px;
+            font-weight: normal;
+        }
+        
+        .order-table td {
+            border: none;
+            padding: 10px;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .connection-status {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .connected {
+            color: #4caf50;
+        }
+        
+        .disconnected {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="trading-container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="account-number" id="btc-price-container">
+                    <span id="btc-price">113456</span>
+                    <span class="price-arrow" id="price-arrow"></span>
+                </div>
+                <div class="connection-status" id="connection-status">Подключение...</div>
+                
+                <ul class="nav nav-tabs" id="orderTypeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="market-tab" data-bs-toggle="tab" data-bs-target="#market" type="button" role="tab">Рыночный</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="limit-tab" data-bs-toggle="tab" data-bs-target="#limit" type="button" role="tab">Лимитный</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="orderTypeContent">
+                    <div class="tab-pane fade show active" id="market" role="tabpanel">
+                        <div class="input-group">
+                            <span class="input-group-text">SUM</span>
+                            <input type="number" class="form-control" placeholder="Введите сумму">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">SL</span>
+                            <input type="number" class="form-control" placeholder="Stop Loss">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">TP</span>
+                            <input type="number" class="form-control" placeholder="Take Profit">
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="limit" role="tabpanel">
+                        <div class="input-group">
+                            <span class="input-group-text">ENT</span>
+                            <input type="number" class="form-control" placeholder="Entry Price">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">SUM</span>
+                            <input type="number" class="form-control" placeholder="Введите сумму">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">SL</span>
+                            <input type="number" class="form-control" placeholder="Stop Loss">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">TP</span>
+                            <input type="number" class="form-control" placeholder="Take Profit">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button class="btn btn-long">LONG</button>
+                    <button class="btn btn-short">SHORT</button>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="balance text-end">15 000</div>
+                
+                <div class="table-responsive">
+                    <table class="table order-table">
+                        <thead>
+                            <tr>
+                                <th>CreateDate</th>
+                                <th>ActiveDate</th>
+                                <th>CloseDate</th>
+                                <th>Side</th>
+                                <th>Sum</th>
+                                <th>Entry</th>
+                                <th>EXIT</th>
+                                <th>State</th>
+                                <th>Res</th>
+                                <th>PREVBAL</th>
+                                <th>NEWBAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>OrderID</td>
+                                <td></td>
+                                <td></td>
+                                <td>LONG/SHORT</td>
+                                <td>115</td>
+                                <td>113350</td>
+                                <td>113450</td>
+                                <td>Create/Active/Close</td>
+                                <td>+5.4</td>
+                                <td>14994.6</td>
+                                <td>15000</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>LONG/SHORT</td>
+                                <td>115</td>
+                                <td>113350</td>
+                                <td>113450</td>
+                                <td>Create/Active/Close</td>
+                                <td>+5.4</td>
+                                <td>14994.6</td>
+                                <td>15000</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>LONG/SHORT</td>
+                                <td>115</td>
+                                <td>113350</td>
+                                <td>113450</td>
+                                <td>Create/Active/Close</td>
+                                <td>+5.4</td>
+                                <td>14994.6</td>
+                                <td>15000</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>LONG/SHORT</td>
+                                <td>115</td>
+                                <td>113350</td>
+                                <td>113450</td>
+                                <td>Create/Active/Close</td>
+                                <td>+5.4</td>
+                                <td>14994.6</td>
+                                <td>15000</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>LONG/SHORT</td>
+                                <td>115</td>
+                                <td>113350</td>
+                                <td>113450</td>
+                                <td>Create/Active/Close</td>
+                                <td>+5.4</td>
+                                <td>14994.6</td>
+                                <td>15000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Переменные для отслеживания цены
+        let previousPrice = 113456;
+        let currentPrice = 113456;
+        const priceElement = document.getElementById('btc-price');
+        const priceContainer = document.getElementById('btc-price-container');
+        const arrowElement = document.getElementById('price-arrow');
+        const statusElement = document.getElementById('connection-status');
+        
+        // Функция обновления цены через REST API
+
+        // Функция обновления отображения цены
+        function updatePriceDisplay(newPrice) {
+            priceElement.textContent = Math.round(newPrice);
+            
+            if (newPrice > previousPrice) {
+                priceContainer.classList.remove('price-down');
+                priceContainer.classList.add('price-up');
+                arrowElement.textContent = '▲';
+                arrowElement.classList.remove('price-down');
+                arrowElement.classList.add('price-up');
+            } else if (newPrice < previousPrice) {
+                priceContainer.classList.remove('price-up');
+                priceContainer.classList.add('price-down');
+                arrowElement.textContent = '▼';
+                arrowElement.classList.remove('price-up');
+                arrowElement.classList.add('price-down');
+            } else {
+                arrowElement.textContent = '—';
+            }
+            
+            previousPrice = newPrice;
+        }
+        
+        // WebSocket подключение (альтернативный метод)
+        function connectWebSocket() {
+            try {
+                const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+                
+                ws.onopen = function() {
+                    console.log('WebSocket подключен');
+                    statusElement.textContent = 'WebSocket подключен';
+                    statusElement.classList.add('connected');
+                    statusElement.classList.remove('disconnected');
+                };
+                
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    const newPrice = parseFloat(data.c);
+                    updatePriceDisplay(newPrice);
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('WebSocket ошибка:', error);
+                    statusElement.textContent = 'Используется REST API';
+                    // Переключаемся на REST API
+                    startRESTPolling();
+                };
+                
+                ws.onclose = function() {
+                    console.log('WebSocket закрыт');
+                    statusElement.textContent = 'Переподключение...';
+                    // Переключаемся на REST API
+                    startRESTPolling();
+                };
+                
+                return ws;
+            } catch (error) {
+                console.error('Не удалось создать WebSocket:', error);
+                // Используем REST API как запасной вариант
+            }
+        }
+        
+        // Запуск периодического обновления через REST API
+        
+        // Пробуем сначала WebSocket
+        connectWebSocket();
+        
+        // Обработка переключения табов
+        document.getElementById('market-tab').addEventListener('click', function() {
+            console.log('Выбран рыночный ордер');
+        });
+        
+        document.getElementById('limit-tab').addEventListener('click', function() {
+            console.log('Выбран лимитный ордер');
+        });
+        
+        // Обработка кнопок LONG и SHORT
+        document.querySelector('.btn-long').addEventListener('click', function() {
+            console.log('LONG позиция');
+            alert(`Открытие LONG позиции по цене: ${Math.round(currentPrice)}`);
+        });
+        
+        document.querySelector('.btn-short').addEventListener('click', function() {
+            console.log('SHORT позиция');
+            alert(`Открытие SHORT позиции по цене: ${Math.round(currentPrice)}`);
+        });
+        
+        // Добавление обработчиков для полей ввода
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                console.log(`${this.previousElementSibling.textContent}: ${this.value}`);
+            });
+        });
+    </script>
+</body>
+</html>
