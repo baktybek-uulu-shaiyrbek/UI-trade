@@ -1,21 +1,19 @@
 import asyncio
 import json
 import logging
-from websockets.asyncio.server import serve
+from websockets.server import serve
 from typing import Dict, Set
 from .handlers import TradingEndpoints
-from .auth import JWTAuthenticator
 
 class TradingWebSocketServer:
-    def __init__(self, host: str, port: int, binance_client, database):
+    def __init__(self, host: str, port: int, binance_client):
         self.host = host
         self.port = port
         self.clients: Set = set()
         self.authenticated_clients: Dict = {}
         self.binance_client = binance_client
-        self.database = database
-        self.authenticator = JWTAuthenticator()
-        self.endpoints = TradingEndpoints(binance_client, database, self)
+        # self.authenticator = JWTAuthenticator()
+        self.endpoints = TradingEndpoints(binance_client, self)
         
     async def register_client(self, websocket):
         self.clients.add(websocket)

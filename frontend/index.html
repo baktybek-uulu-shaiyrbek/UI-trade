@@ -162,118 +162,54 @@
                         </div>
                     </div>
                     
-                    <div class="tab-pane fade" id="limit" role="tabpanel">
-                        <div class="input-group">
-                            <span class="input-group-text">ENT</span>
-                            <input type="number" class="form-control" placeholder="Entry Price">
+                   <div class="tab-pane fade" id="limit" role="tabpanel">
+                            <div class="input-group">
+                                <span class="input-group-text">ENT</span>
+                                <input id="entryPrice" type="number" class="form-control" placeholder="Entry Price">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">SUM</span>
+                                <input id="sum" type="number" class="form-control" placeholder="Введите сумму">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">SL</span>
+                                <input id="stopLoss" type="number" class="form-control" placeholder="Stop Loss">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">TP</span>
+                                <input id="takeProfit" type="number" class="form-control" placeholder="Take Profit">
+                            </div>
+                            <!-- <button id="openLimitOrderBtn" class="btn btn-primary mt-2">Открыть ордер</button> -->
                         </div>
-                        <div class="input-group">
-                            <span class="input-group-text">SUM</span>
-                            <input type="number" class="form-control" placeholder="Введите сумму">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-text">SL</span>
-                            <input type="number" class="form-control" placeholder="Stop Loss">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-text">TP</span>
-                            <input type="number" class="form-control" placeholder="Take Profit">
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="mt-4">
-                    <button class="btn btn-long">LONG</button>
-                    <button class="btn btn-short">SHORT</button>
+                    <button class="btn btn-toOpen btn-long" value="LONG">OPEN LONG</button>
+                    <button class="btn btn-toOpen btn-short" value="SHORT">OPEN SHORT</button>
                 </div>
             </div>
             
             <div class="col-md-8">
                 <div class="balance text-end">15 000</div>
                 
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table order-table">
                         <thead>
                             <tr>
-                                <th>CreateDate</th>
-                                <th>ActiveDate</th>
-                                <th>CloseDate</th>
+                                <th>OrderID</th>
+                                <th>createTime</th>
+                                <th>activeTime</th>
+                                <th>closeTime</th>
                                 <th>Side</th>
-                                <th>Sum</th>
-                                <th>Entry</th>
-                                <th>EXIT</th>
-                                <th>State</th>
-                                <th>Res</th>
-                                <th>PREVBAL</th>
-                                <th>NEWBAL</th>
+                                <th>quantity</th>
+                                <th>price </th>
+                                <th>exitPrice</th>
+                                <th>status</th>
+                                <th>PnL</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>OrderID</td>
-                                <td></td>
-                                <td></td>
-                                <td>LONG/SHORT</td>
-                                <td>115</td>
-                                <td>113350</td>
-                                <td>113450</td>
-                                <td>Create/Active/Close</td>
-                                <td>+5.4</td>
-                                <td>14994.6</td>
-                                <td>15000</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>LONG/SHORT</td>
-                                <td>115</td>
-                                <td>113350</td>
-                                <td>113450</td>
-                                <td>Create/Active/Close</td>
-                                <td>+5.4</td>
-                                <td>14994.6</td>
-                                <td>15000</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>LONG/SHORT</td>
-                                <td>115</td>
-                                <td>113350</td>
-                                <td>113450</td>
-                                <td>Create/Active/Close</td>
-                                <td>+5.4</td>
-                                <td>14994.6</td>
-                                <td>15000</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>LONG/SHORT</td>
-                                <td>115</td>
-                                <td>113350</td>
-                                <td>113450</td>
-                                <td>Create/Active/Close</td>
-                                <td>+5.4</td>
-                                <td>14994.6</td>
-                                <td>15000</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>LONG/SHORT</td>
-                                <td>115</td>
-                                <td>113350</td>
-                                <td>113450</td>
-                                <td>Create/Active/Close</td>
-                                <td>+5.4</td>
-                                <td>14994.6</td>
-                                <td>15000</td>
-                            </tr>
+                        <tbody id="ordersTableBody">
+                            <!-- Тут будут рендериться ордера -->
                         </tbody>
                     </table>
                 </div>
@@ -283,6 +219,11 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+
+        // WebSocket — лучше создать 1 раз при запуске приложения!
+        
+      
+
         // Переменные для отслеживания цены
         let previousPrice = 113456;
         let currentPrice = 113456;
@@ -338,14 +279,14 @@
                     console.error('WebSocket ошибка:', error);
                     statusElement.textContent = 'Используется REST API';
                     // Переключаемся на REST API
-                    startRESTPolling();
+                    // startRESTPolling();
                 };
                 
                 ws.onclose = function() {
                     console.log('WebSocket закрыт');
                     statusElement.textContent = 'Переподключение...';
                     // Переключаемся на REST API
-                    startRESTPolling();
+                    // startRESTPolling();
                 };
                 
                 return ws;
@@ -367,26 +308,208 @@
         
         document.getElementById('limit-tab').addEventListener('click', function() {
             console.log('Выбран лимитный ордер');
+
+            document.querySelectorAll('.btn-toOpen').forEach(v => {
+                v.addEventListener('click', function(event) {
+                    if( event.target.value === 'LONG') {
+                        chooseSide('BUY');
+                        console.log('Открытие LONG позиции');
+                    } else if (event.target.value === 'SHORT') {
+                        chooseSide('SELL');
+                        console.log('Открытие SHORT позиции');
+                    }
+                });
+            })
+            function chooseSide(side) {
+                const entry = document.getElementById('entryPrice').value;
+                const sum = document.getElementById('sum').value;
+                const stopLoss = document.getElementById('stopLoss').value;
+                const takeProfit = document.getElementById('takeProfit').value;
+
+                // Не даём отправлять, если поля пусты
+                if (!entry || !sum) {
+                    alert('Пожалуйста, заполните поля Entry и Sum!');
+                    return;
+                }
+
+                // Для примера, символ и направление хардкодим
+                const symbol = "BTCUSDT";
+                const sideText = side; // или "SELL", можно добавить выбор направления
+
+                openLimitOrder(symbol, sideText, Number(sum), Number(entry));
+            };
+
+            function openLimitOrder(symbol, side, quantity, price) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    alert("WebSocket не подключен!");
+                    return;
+                }
+                const limitOrderRequest = {
+                    type: "create_limit_order",
+                    data: {
+                        symbol,
+                        side,
+                        quantity,
+                        price
+                    }
+                };
+                    ws.send(JSON.stringify(limitOrderRequest));
+                    console.log("Отправлен лимитный ордер:", limitOrderRequest);
+                }
         });
         
-        // Обработка кнопок LONG и SHORT
-        document.querySelector('.btn-long').addEventListener('click', function() {
-            console.log('LONG позиция');
-            alert(`Открытие LONG позиции по цене: ${Math.round(currentPrice)}`);
-        });
-        
-        document.querySelector('.btn-short').addEventListener('click', function() {
-            console.log('SHORT позиция');
-            alert(`Открытие SHORT позиции по цене: ${Math.round(currentPrice)}`);
-        });
-        
-        // Добавление обработчиков для полей ввода
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                console.log(`${this.previousElementSibling.textContent}: ${this.value}`);
+
+
+        // Для хранения текущих ордеров (по id)
+        let positions = []; // [{ openOrderId, createTime, ... }]
+       
+
+        // Рендер одной позиции
+        function positionToRow(pos) {
+            const tr = document.createElement("tr");
+            let pnlValue = "";
+            let pnlClass = "";
+            
+
+            if (pos.status === "Activated" && pos.livePnl !== undefined) {
+                pnlValue = parseFloat(pos.livePnl);
+            } else if (pos.status === "Closed" && pos.pnl !== undefined) {
+                pnlValue = parseFloat(pos.pnl);
+            }
+
+            if (!isNaN(pnlValue) && pnlValue !== "") {
+                pnlClass = pnlValue > 0 ? "pnl-positive" : (pnlValue < 0 ? "pnl-negative" : "");
+            }
+
+            tr.innerHTML = `
+                <td>${pos.openOrderId || ""}</td>
+                <td>${pos.createTime || ""}</td>
+                <td>${pos.activeTime || ""}</td>
+                <td>${pos.closeTime || ""}</td>
+                <td>${mapSide(pos.side) || ""}</td>
+                <td>${pos.quantity || ""}</td>
+                <td>${pos.entryPrice || ""}</td>
+                <td>${pos.exitPrice || ""}</td>
+                <td>${mapStatus(pos.status) || ""}</td>
+                <td class="${pnlClass}">${pnlValue !== "" ? pnlValue : ""}</td>
+            `;
+            return tr;
+        }
+
+        function renderPositionsTable() {
+            const tbody = document.getElementById("ordersTableBody");
+            tbody.innerHTML = "";
+            positions.forEach(pos => {
+                tbody.appendChild(positionToRow(pos));
             });
-        });
+        }
+
+
+        function mapStatus(status) {
+            switch ((status || "").toUpperCase()) {
+                case "NEW": return "Created";
+                case "FILLED": return "Activated";
+                case "CANCELED": return "Closed";
+                case "PARTIALLY_FILLED": return "Partially Filled";
+                case "EXPIRED": return "Expired";
+                case "REJECTED": return "Rejected";
+                case "PENDING_CANCEL": return "Pending Close";
+                default: return status;
+            }
+        }
+
+        function mapSide(side) {
+            switch ((side || "").toUpperCase()) {
+                case "BUY": return "Long";
+                case "SELL": return "Short";
+                default: return side || "Unknown";
+            }
+        }
+
+      
+
+        // WebSocket для ордеров
+       let currentPosition = null; // всегда одна активная позиция
+
+       let ws = new WebSocket("ws://localhost:8000/ws");
+
+        ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            if (msg.type === "order_update") {
+                const o = msg.data.o;
+                const status = o.X;
+
+                // ОТКРЫТИЕ позиции (FILLED, когда нет активной)
+                if (
+                    status === "FILLED" &&
+                    (!currentPosition || currentPosition.status === "Closed")
+                ) {
+                    currentPosition = {
+                        openOrderId: o.i,
+                        createTime: new Date(o.T).toLocaleString(),
+                        activeTime: new Date(o.T).toLocaleString(),
+                        closeTime: "",
+                        side: o.S,
+                        quantity: o.q,
+                        entryPrice: o.p,
+                        exitPrice: "",
+                        status: "Activated",
+                        pnl: "",
+                        livePnl: ""
+                    };
+                    positions.push(currentPosition);
+                }
+                // ЗАКРЫТИЕ позиции (следующий FILLED, когда активна)
+                else if (
+                    status === "FILLED" &&
+                    currentPosition &&
+                    currentPosition.status === "Activated"
+                ) {
+                    currentPosition.status = "Closed";
+                    currentPosition.closeTime = msg.data.T
+                        ? new Date(msg.data.T).toLocaleString()
+                        : "";
+                    currentPosition.exitPrice = o.L || "";
+                    currentPosition.pnl = o.rp || "";
+                }
+                // Если это отмена, тоже закрываем позицию
+                else if (
+                    status === "CANCELED" &&
+                    currentPosition &&
+                    currentPosition.status === "Activated"
+                ) {
+                    currentPosition.status = "Closed";
+                    currentPosition.closeTime = msg.data.T
+                        ? new Date(msg.data.T).toLocaleString()
+                        : "";
+                    currentPosition.exitPrice = o.L || "";
+                    currentPosition.pnl = o.rp || "";
+                }
+
+                renderPositionsTable();
+            }
+        };
+
+        ws.onopen = () => console.log("ws открыт");
+        ws.onerror = (e) => console.error(e);
+        ws.onclose = (e) => console.warn("ws закрыт", e);
+
+
+        // WebSocket для livePnL
+        let wsPnl = new WebSocket("ws://localhost:8000/ws-pnl");
+        wsPnl.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            if (currentPosition && currentPosition.status === "Activated") {
+                currentPosition.livePnl = msg.unrealized_pnl;
+                renderPositionsTable();
+            }
+        };
+        wsPnl.onopen = () => console.log("WS PnL открыт");
+        wsPnl.onclose = () => console.log("WS PnL закрыт");
+
+
+                        
+        
     </script>
 </body>
 </html>

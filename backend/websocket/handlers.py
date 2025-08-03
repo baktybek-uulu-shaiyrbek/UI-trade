@@ -2,9 +2,8 @@ import json
 import logging
 
 class TradingEndpoints:
-    def __init__(self, binance_client, database, websocket_server):
+    def __init__(self, binance_client, websocket_server):
         self.binance_client = binance_client
-        self.database = database
         self.websocket_server = websocket_server
         
     async def handle_message(self, message: dict, websocket):
@@ -42,7 +41,7 @@ class TradingEndpoints:
         )
         
         # Store in database
-        await self.database.store_transaction(order_result, user)
+        # await self.database.store_transaction(order_result, user)
         
         # Broadcast to user's connections
         await self.websocket_server.broadcast_to_user(user['user_id'], {
@@ -64,7 +63,7 @@ class TradingEndpoints:
             timeInForce='GTC'
         )
         
-        await self.database.store_transaction(order_result, user)
+        # await self.database.store_transaction(order_result, user)
         
         await self.websocket_server.broadcast_to_user(user['user_id'], {
             "type": "order_update",
