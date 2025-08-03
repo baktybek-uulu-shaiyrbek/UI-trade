@@ -48,7 +48,7 @@ async def ws_orders(websocket: WebSocket):
         print("[ERROR]", e)
     finally:    
         print("[Client] ws отключён")
-
+  ##
 @app.websocket("/ws-pnl")
 async def ws_pnl(websocket: WebSocket):
     client = Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=True)
